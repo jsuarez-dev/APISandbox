@@ -27,8 +27,8 @@ public class BlogController : ControllerBase
     [HttpGet("{id}")]
     public ActionResult<Blog> GetBlog(int id)
     {
-        var Blog = _context.Blogs.Where(x => x.Id == id);
-        if (Blog == null)
+        var Blog = _context.Blogs.Where(x => x.Id == id).ToList();
+        if (Blog.Count == 0)
         {
             return NotFound();
         }
@@ -42,5 +42,21 @@ public class BlogController : ControllerBase
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetBlog), new { id = blog.Id }, blog);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Blog>> UpdateBlog(int id,[FromForm] string title, [FromForm] string content) 
+    {
+        var Blog = _context.Blogs.FirstOrDefault(x => x.Id == id);
+        if (Blog == null)
+        {
+            return NotFound();
+        }
+        Blog.Title = title;
+        Blog.Content = content;
+        _context.Entry(Blog);
+        await _context.SaveChangesAsync();
+        return Ok(Blog);
+
     }
 }
